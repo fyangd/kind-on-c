@@ -572,6 +572,7 @@ main() {
 
   # start the cluster
   kind::start "$imageName"
+  docker exec -ti kind-control-plane journalctl -l -u kubelet
 
   # shellcheck disable=SC2016
   log::info 'Running tests from "$KIND_TESTS"'

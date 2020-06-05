@@ -1,0 +1,46 @@
+jobs:
+  - name: kind
+    plan:
+      - in_parallel:
+          - get: k8s-git
+          - get: kind-on-c
+          - get: kind-release
+            params:
+              globs:
+                - kind-linux-amd64
+      - task: run-kind
+        privileged: true
+        file: kind-on-c/kind.yaml
+        params:
+          KINDONC_DEBUG: 'on'
+          KIND_TESTS: |
+            # your actual tests go here!
+            kubectl get nodes -o wide
+          KIND_CONFIG: |
+            kind: Cluster
+            apiVersion: kind.x-k8s.io/v1alpha4
+            kubeadmConfigPatches:
+            - |
+              apiVersion: kubeadm.k8s.io/v1beta2
+              kind: InitConfiguration
+              nodeRegistration:
+                kubeletExtraArgs:
+                  v: "10"
+nodes:
+  - role: control-plane
+
+resources:
+  - name: k8s-git
+    type: git
+    source:
+      uri: https://github.com/kubernetes/kubernetes
+  - name: kind-release
+    type: github-release
+    source:
+      owner: kubernetes-sigs
+      repository: kind
+  - name: kind-on-c
+    type: git
+    source:
+      uri: https://github.com/fyangd/kind-on-c
+      branch: etcd_failure_repro
