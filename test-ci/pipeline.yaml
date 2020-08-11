@@ -26,6 +26,9 @@ jobs:
               nodeRegistration:
                 kubeletExtraArgs:
                   v: "10"
+          KIND_PRE_START: |
+            mknod /dev/loop0 p
+
 nodes:
   - role: control-plane
 
